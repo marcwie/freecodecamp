@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body {
+  background-color: #1abc9c;
+  margin-top: 60px;
+  margin-bottom: 60px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.btn-group {
+  margin-bottom: 3px;
+}
+
+.well {
+  height: 80px;
+  margin-bottom: 3px;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding: 8px;
+}
+
+.box {
+  display: flex;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: center;
+}
+
+.box .B {
+  flex: 1 0 auto; 
+}
+
+.box .C {
+  align-self: stretch;
+}
+ 
+.innerbox {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-flow: column;
+  height: 100%;
+}
+
+.viewer {
+  flex: 0 1 auto;
+}
+
+.status {
+  
+}
+
+.img {
+  height: 100%;
+  margin-right: 20px;
+}
+
+a:link {
+  text-decoration: none;
+  color: #1abc9c;
+
+}
+
+a:visited {
+  text-decoration: none;  
+  color: #1abc9c;
+}
+
+a:hover {
+  text-decoration: none;
+  color: #1abc9c;
+}
+
+a:active {
+  text-decoration: none;
+  color: #1abc9c;
+}
+
+.well:default {
+  background-color: #ecf0f1;
+  border-color: #ecf0f1;
+}
+
+.well {
+  border-radius: 0 !important;
+}
+
+.well:hover {
+  background-color: #bdc3c7;
+  border-color: #bdc3c7;
+}
