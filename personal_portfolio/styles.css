@@ -1,0 +1,18 @@
+body {
+  margin-top: 60px
+}
+
+.subheading {
+  margin-bottom: 30px;
+  margin-top: 30px
+}
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+.btn {
+  margin: 1px;
+}
