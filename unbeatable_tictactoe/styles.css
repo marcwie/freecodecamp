@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css?family=Arimo');
+
+body {
+  background-color: #34495e;
+  font-family: 'Arimo', sans-serif;
+  font-size: 50px;
+}
+
+#app {
+  width: 300px;
+  height: 300px;
+  background-color: #34495e;
+  position: relative;
+}
+
+.field {
+  position: absolute;
+  width: 33.3333%;
+  height: 33.3333%;
+  background-color: #7f8c8d;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: default;
+}
+
+.field:hover {
+  background-color: #95a5a6;
+}
+
+.row1 {
+  margin-top: 0%;
+}
+
+.row2 {
+  margin-top: 33.3333%;
+}
+
+.row3 {
+  margin-top: 66.6666%;
+}
+
+.col1 {
+  margin-left: 0%;
+}
+
+.col2 {
+  margin-left: 33.3333%;
+}
+
+.col3 {
+  margin-left: 66.6666%;
+}
+
+.results{
+  width: 100px; 
+  height: 50px;
+  background-color: grey;
+}
