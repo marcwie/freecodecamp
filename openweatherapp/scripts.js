@@ -13,13 +13,13 @@ var condition = "";
 var urlForCurrentWeather = ""
 
 var urls = {
-  "thunderstorm": "https://res.cloudinary.com/dgvof5t1y/image/upload/v1492366173/tim-trad-227296_conv_ksiyor.jpg",
-  "drizzle": "https://res.cloudinary.com/dgvof5t1y/image/upload/v1492371617/mario-calvo-3518_xvkk2k.jpg",
-  "snow": "https://res.cloudinary.com/dgvof5t1y/image/upload/v1492366914/todd-diemer-110885_conv_w7oocz.jpg",
-  "atmosphere": "https://res.cloudinary.com/dgvof5t1y/image/upload/v1492370186/tobias-tullius-225741_conv_xvbuma.jpg",
-  "clear": "https://res.cloudinary.com/dgvof5t1y/image/upload/v1492370172/lance-anderson-3601_conv_dwfm4i.jpg",
-  "clouds": "https://res.cloudinary.com/dgvof5t1y/image/upload/v1492370190/aaron-burden-203263_conv_b5pfpm.jpg",
-  "extreme": "https://res.cloudinary.com/dgvof5t1y/image/upload/v1492370557/karsten-wurth-163788_lpwpxg.jpg",
+  "thunderstorm": "img/tim-trad-227296_conv_ksiyor.jpg",
+  "drizzle": "img/mario-calvo-3518_xvkk2k.jpg",
+  "snow": "img/todd-diemer-110885_conv_w7oocz.jpg",
+  "atmosphere": "img/tobias-tullius-225741_conv_xvbuma.jpg",
+  "clear": "img/lance-anderson-3601_conv_dwfm4i.jpg",
+  "clouds": "img/aaron-burden-203263_conv_b5pfpm.jpg",
+  "extreme": "img/karsten-wurth-163788_lpwpxg.jpg",
 }
 
 function celsius2Fahrenheit(celcius) {
