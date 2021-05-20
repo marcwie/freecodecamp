@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="https://livejs.com/live.js"></script>
+  <script src="https://d3js.org/topojson.v1.min.js"></script>
+</head>
+
+<style>
+* {
+    font-family: sans-serif;
+    background-color: #7f8c8d;
+}
+
+#title {
+    text-anchor: middle;
+    font-size: 20px;
+}
+
+#description {
+    text-anchor: middle;
+    font-size: 14px;
+}
+
+#tooltip {
+    visibility: hidden;
+    position: absolute;
+    opacity: 0.8;
+    padding: 10px;
+    vertical-align: middle;
+    text-align: center;
+    border-radius: 5px;
+    background-color: #34495e;
+    font-size: 14px;
+    color: #ecf0f1;
+}
+
+#svg{
+    background-color: white;
+    box-shadow: 2px 2px 20px;
+}
+
+.county:hover {
+  stroke-width: 0.75;
+  stroke: black;
+}
+
+</style>
+
+<body>
+
+<div id=container align="center"></div>
+
+<script type="text/javascript">
+
+var countyUrl = "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json"
+var educationUrl = "https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/for_user_education.json"
+
+var width = 700;
+var height = 500;
+var margin = {left: 20, right: 40, top: 70, bottom: 5}
+
+var colors = ['#fef0d9','#fdcc8a','#fc8d59','#e34a33','#b30000']
+
+var verticalCenter = margin.top + (height - margin.top - margin.bottom) / 2
+
+var svg = d3.select("#container")
+            .append("svg")
+            .attr("id", "svg")
+            .attr("width", width)
+            .attr("height", height)
+
+svg.append("text")
+   .attr("x", width / 2 )
+   .attr("y", margin.top / 1.7)
+   .attr("id", "title")
+   .text("US educational attainment")
+
+svg.append("text")
+   .attr("x", width / 2 )
+   .attr("y", margin.top )
+   .attr("id", "description")
+   .text("Percentage of adults over 25 years with bachelor's degree or higher")
+
+// Use a null projection, because the data is already preprojected
+var path = d3.geoPath(null)
+var projection = d3.geoIdentity()
+
+// Create colormap
+var colorMap = d3.scaleQuantize().range(colors)
+
+// Create legend
+var legendScale = d3.scaleLinear().range([verticalCenter+130, verticalCenter+10])
+var legendAxis = d3.axisRight().scale(legendScale)
+
+var legend = svg.append("g").attr("id", "legend")
+                .attr("transform", "translate("+ (width-margin.right-15)+", 0)")
+
+// Tooltip
+var tooltip = d3.select("#container")
+                .append("div")
+                .attr("id", "tooltip")
+                .style("visibility", "hidden")
+
+// Load two json files simultaneously
+Promise.all([d3.json(countyUrl), d3.json(educationUrl)]).then(function(dataFiles) {
+
+  var countyData = dataFiles[0];
+  var educationData = dataFiles[1];
+
+  var maxEducation = d3.max(educationData, (d) => d.bachelorsOrHigher)
+  colorMap.domain([0, maxEducation])
+
+  var counties = topojson.feature(countyData, countyData.objects.counties);
+  projection.fitExtent([[margin.left, margin.top], [width - margin.right, height-margin.bottom]], counties)
+
+  svg.selectAll("path")
+     .data(counties.features)
+     .enter()
+     .append("path")
+     .attr("d", path.projection(projection))
+     .attr("class", "county")
+     .attr("data-fips", (c) => educationData.filter((e) => e.fips == c.id)[0].fips)
+     .attr("data-education", (c) => educationData.filter((e) => e.fips == c.id)[0].bachelorsOrHigher)
+     .attr("data-area-name", (c) => educationData.filter((e) => e.fips == c.id)[0].area_name)
+     .attr("data-state", (c) => educationData.filter((e) => e.fips == c.id)[0].state)
+     .attr("fill", (c) => colorMap(educationData.filter((e) => e.fips == c.id)[0].bachelorsOrHigher))
+     .on("mouseover", function(d){
+            tooltip.style("visibility", "visible")
+                   .style("left", event.pageX+10+"px")
+                   .style("top", event.pageY-10+"px")
+                   .html(d3.select(this).attr("data-area-name") + ", " + d3.select(this).attr("data-state") + ": " + d3.select(this).attr("data-education") + "%")
+                   .attr("data-education", d3.select(this).attr("data-education"))
+          })
+          .on("mousemove", function(){
+            tooltip.style("left", event.pageX+10+"px")
+                   .style("top", event.pageY-20+"px")
+          })
+          .on("mouseout", function(){
+            tooltip.style("visibility", "hidden")
+          })
+
+
+  var states = topojson.feature(countyData, countyData.objects.states)
+  svg.selectAll("states")
+     .data(states.features)
+     .enter()
+     .append("path")
+     .attr("d", path.projection(projection))
+     .attr("fill", "none")
+     .attr("stroke-width", 0.2)
+     .attr("stroke", "black")
+
+  var colorSteps = [colorMap.domain()[0]].concat(colorMap.thresholds())
+
+  legendScale.domain(colorMap.domain())
+  legendAxis.tickValues(colorSteps.concat(colorMap.domain()[1]))
+            .tickFormat((d) => Math.round(d)+"%")
+  legend.call(legendAxis)
+
+  var boxWidth = (legendScale(0) - legendScale(maxEducation)) / colorSteps.length
+
+  legend.append("g").selectAll("legendRect")
+                   .data(colorSteps)
+                   .enter()
+                   .append("rect")
+                   .attr("x", -12)
+                   .attr("y", (d) => legendScale(d) - boxWidth)
+                   .attr("height", boxWidth)
+                   .attr("width", 12)
+                   .attr("fill", (d) => colorMap(d + 0.01))
+})
+
+
+</script>
+
+<script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js" charset="utf-8"></script>
+
+</body>
+</html>
