@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+  <script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="https://livejs.com/live.js"></script>
+</head>
+
+<style>
+* {
+    font-family: sans-serif;
+    background-color: #7f8c8d;
+
+}
+
+#title {
+    text-anchor: middle;
+    font-size: 22px;
+}
+
+#description {
+    text-anchor: middle;
+    font-size: 16px;
+}
+
+#tooltip {
+    visibility: hidden;
+    position: absolute;
+    opacity: 0.8;
+    padding: 10px;
+    vertical-align: middle;
+    text-align: center;
+    border-radius: 5px;
+    background-color: #34495e;
+    font-size: 14px;
+    color: #ecf0f1;
+}
+
+#svg{
+    background-color: white;
+    box-shadow: 2px 2px 20px;
+}
+
+</style>
+
+<body>
+
+<div id=container align="center"></div>
+
+<script type="text/javascript">
+
+var url = "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json"
+
+var width= 700;
+var height = 500;
+var margin = {left: 20, right: 20, top: 80, bottom: 60}
+var legendBoxWidth = 75
+var legendMargin = {side: 40, top: 10}
+var legendBoxHeight = 30
+
+//var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999']
+
+const svg = d3.select("#container")
+              .append("svg")
+              .attr("id", "svg")
+              .attr("width", width)
+              .attr("height", height)
+
+svg.append("text")
+   .attr("x", width / 2 )
+   .attr("y", margin.top / 2.3)
+   .attr("id", "title")
+   .text("100 highest grossing movies")
+
+svg.append("text")
+   .attr("x", width / 2 )
+   .attr("y", margin.top / 1.25)
+   .attr("id", "description")
+   .text("All time domestic box office grouped by genre")
+
+var tooltip = d3.select("#container")
+                .append("div")
+                .attr("id", "tooltip")
+                .style("visibility", "hidden")
+
+
+d3.json(url).then( function(data) {
+
+  var hierarchy = d3.hierarchy(data).sum((d) => d.value).sort((a,b) => b.value - a.value)
+  var treemap = d3.treemap().size([width - margin.left - margin.right, height - margin.top - margin.bottom]).paddingOuter(2).paddingInner(1)
+  var root = treemap(hierarchy)
+
+  var categories = data.children.map((d) => d.name)
+  var colorMap = d3.scaleOrdinal(d3.schemeTableau10).domain(categories)
+
+
+
+  svg.selectAll("rect")
+     .data(root.leaves())
+     .enter()
+     .append("rect")
+     .attr("x", (d) => d.x0 + margin.left)
+     .attr("y", (d) => d.y0 + margin.top)
+     .attr("width", (d) => d.x1 - d.x0)
+     .attr("height", (d) => d.y1 - d.y0)
+     .attr("fill", (d) => colorMap(d.data.category))
+     .attr("class", "tile")
+     .attr("data-name", (d) => d.data.name)
+     .attr("data-category", (d) => d.data.category)
+     .attr("data-value", (d) => d.data.value)
+     .on("mouseover", function(d){
+       tooltip.style("visibility", "visible")
+              .style("left", event.pageX+10+"px")
+              .style("top", event.pageY-10+"px")
+              .html(d3.select(this).attr("data-name")+"<br>"+ (Math.round(d3.select(this).attr("data-value") / 1E6) + " Million USD"))
+              .attr("data-value", d3.select(this).attr("data-value"))
+     })
+     .on("mousemove", function(){
+       tooltip.style("left", event.pageX+10+"px")
+              .style("top", event.pageY-10+"px")
+     })
+     .on("mouseout", function(){
+       tooltip.style("visibility", "hidden")
+     })
+
+     svg.selectAll("rectText")
+        .data(root.leaves())
+        .enter()
+        .append("text")
+        .attr("x", (d) => d.x0 + margin.left + 5)
+        .attr("y", (d) => d.y0 + margin.top + 7)
+        .text( function(d) {
+          var dx = d.x1 - d.x0 - 2 * 5
+          var allowedLength = dx / 10 / 0.55 // 10 is the fontsize, 0.55 is the average width of a character in px
+          if (allowedLength > d.data.name.length) {
+            return d.data.name
+          }
+          else {
+            return d.data.name.slice(0, allowedLength - 3).trim() + "..."
+          }
+        })
+        .attr("font-size", "10px")
+        .attr("data-name", (d) => d.data.name)
+        .attr("data-value", (d) => d.data.value)
+        .attr("dominant-baseline", "hanging")
+        .on("mouseover", function(d){
+          tooltip.style("visibility", "visible")
+                 .style("left", event.pageX+10+"px")
+                 .style("top", event.pageY-10+"px")
+                 .html(d3.select(this).attr("data-name")+"<br>"+ (Math.round(d3.select(this).attr("data-value") / 1E6) + " Million USD"))
+                 .attr("data-value", d3.select(this).attr("data-value"))
+        })
+        .on("mousemove", function(){
+          tooltip.style("left", event.pageX+10+"px")
+                 .style("top", event.pageY-10+"px")
+        })
+        .on("mouseout", function(){
+          tooltip.style("visibility", "hidden")
+        })
+
+
+     var legend = svg.append("g").attr("id", "legend")
+                     .attr("transform", "translate(0, "+ (height- margin.bottom + legendMargin.top) +")")
+
+     var nCat = categories.length
+     var legendSpacing = (width - margin.left - margin.right - 2 * legendMargin.side - nCat * legendBoxWidth) / (nCat - 1)
+
+     legend.selectAll("legendItems")
+           .data(categories)
+           .enter()
+           .append("rect")
+           .attr("x", (d, i) => margin.left + legendMargin.side + i * (legendBoxWidth + legendSpacing))
+           .attr("y", 0)
+           .attr("width", legendBoxWidth)
+           .attr("height", legendBoxHeight)
+           .attr("fill", (d) => colorMap(d))
+           .attr("rx", 4)
+           .attr("class", "legend-item")
+
+      legend.selectAll("legendText")
+            .data(categories)
+            .enter()
+            .append("text")
+            .attr("x", (d, i) => margin.left + legendMargin.side + i * (legendBoxWidth + legendSpacing) + 0.5 * legendBoxWidth)
+            .attr("y", legendBoxHeight / 2)
+            .text((d) => d)
+            .style("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .attr("font-size", "12px")
+})
+
+</script>
+
+<script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js" charset="utf-8"></script>
+
+</body>
+</html>
