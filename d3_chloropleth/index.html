@@ -130,7 +130,7 @@ Promise.all([d3.json(countyUrl), d3.json(educationUrl)]).then(function(dataFiles
      .on("mouseover", function(d){
             tooltip.style("visibility", "visible")
                    .style("left", event.pageX+10+"px")
-                   .style("top", event.pageY-10+"px")
+                   .style("top", event.pageY-20+"px")
                    .html(d3.select(this).attr("data-area-name") + ", " + d3.select(this).attr("data-state") + ": " + d3.select(this).attr("data-education") + "%")
                    .attr("data-education", d3.select(this).attr("data-education"))
           })
